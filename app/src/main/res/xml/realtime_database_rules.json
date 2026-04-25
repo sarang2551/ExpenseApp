@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "appData": {
+      ".read": true,
+      ".write": true,
+      "transactions": {
+        "$id": {
+          ".validate": "newData.hasChildren(['amount','currency','type','categoryId','date'])"
+        }
+      }
+    }
+  }
+}
