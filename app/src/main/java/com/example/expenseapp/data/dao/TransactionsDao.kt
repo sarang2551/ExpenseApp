@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
 import com.example.expenseapp.data.entities.TransactionEntity
@@ -13,36 +14,48 @@ import com.example.expenseapp.domain.model.TransactionType
 
 @Dao
 @TypeConverters(TransactionTypeConverter::class)
-interface TransactionsDao {
+abstract class TransactionsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(transaction: TransactionEntity): Long
+    abstract suspend fun insert(transaction: TransactionEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(transactions: List<TransactionEntity>)
+    abstract suspend fun insertAll(transactions: List<TransactionEntity>)
 
     @Update
-    suspend fun update(transaction: TransactionEntity)
+    abstract suspend fun update(transaction: TransactionEntity)
 
     @Delete
-    suspend fun delete(transaction: TransactionEntity)
+    abstract suspend fun delete(transaction: TransactionEntity)
+
+    @Transaction
+    suspend fun deleteAll() {
+        deleteAllTransactionTagLinks()
+        deleteAllTransactions()
+    }
+
+    @Query("DELETE FROM transaction_tags")
+    abstract suspend fun deleteAllTransactionTagLinks()
+
+    @Query("DELETE FROM transactions")
+    abstract suspend fun deleteAllTransactions()
 
     @Query("DELETE FROM transactions WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    abstract suspend fun deleteById(id: Long)
 
     @Query("SELECT * FROM transactions ORDER BY created_at DESC")
-    suspend fun getAll(): List<TransactionEntity>
+    abstract suspend fun getAll(): List<TransactionEntity>
 
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
-    suspend fun getById(id: Long): TransactionEntity?
+    abstract suspend fun getById(id: Long): TransactionEntity?
 
     @Query("SELECT * FROM transactions WHERE category_id = :categoryId ORDER BY created_at DESC")
-    suspend fun getByCategory(categoryId: String): List<TransactionEntity>
+    abstract suspend fun getByCategory(categoryId: String): List<TransactionEntity>
 
     @Query("SELECT * FROM transactions WHERE type = :type ORDER BY created_at DESC")
-    suspend fun getByType(type: TransactionType): List<TransactionEntity>
+    abstract suspend fun getByType(type: TransactionType): List<TransactionEntity>
 
     @Query("SELECT * FROM transactions ORDER BY created_at DESC")
-    suspend fun listByDate(): List<TransactionEntity>
+    abstract suspend fun listByDate(): List<TransactionEntity>
 
     @Query(
         """
@@ -52,7 +65,7 @@ interface TransactionsDao {
         ORDER BY created_at DESC
         """
     )
-    suspend fun getByDay(
+    abstract suspend fun getByDay(
         startOfDayMillis: Long,
         endOfDayMillis: Long,
     ): List<TransactionEntity>
