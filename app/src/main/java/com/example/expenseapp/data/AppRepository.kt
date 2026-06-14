@@ -14,7 +14,7 @@ class AppRepository {
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     private val _categories = MutableStateFlow(seedCategories())
     private val _recurringRules = MutableStateFlow<List<RecurringRule>>(emptyList())
-    private val _defaultCurrency = MutableStateFlow("USD")
+    private val _defaultCurrency = MutableStateFlow("SGD")
 
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
     val categories: StateFlow<List<Category>> = _categories.asStateFlow()
